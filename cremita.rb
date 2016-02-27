@@ -35,12 +35,7 @@ end
 
 def parent_issue_ids(issues)
   issues.select { |issue|
-    begin
-      issue.parent
-      true
-    rescue NoMethodError
-      false
-    end
+    get_parent_id(issue) != nil
   }.map { |issue|
     issue.parent["key"]
   }
@@ -93,12 +88,16 @@ def group_by_parent(issues)
   issues.uniq { |issue|
     issue.key
   }.group_by { |issue|
-    begin
-      issue.parent["key"]
-    rescue NoMethodError => e
-      issue.key
-    end
+    get_parent_id(issue) || issue.key
   }
+end
+
+def get_parent_id(issue)
+  begin
+    issue.parent["key"]
+  rescue NoMethodError => e
+    nil
+  end
 end
 
 def draw_issue_groups(grouped_issues)
