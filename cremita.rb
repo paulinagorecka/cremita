@@ -63,7 +63,7 @@ def draw_issue(issue, child=false)
   indent = child ? "    " : ""
   url = child ? "" : "\n#{indent}#{ENV["JIRA_SITE"]}/browse/#{issue.key}"
 
-  name = child ? "" : issue.summary
+  name = issue.summary
   if name.length > 50
     name = name[0..47] + "..."
   end
