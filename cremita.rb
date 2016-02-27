@@ -61,14 +61,15 @@ def draw_issue(issue, child=false)
   type = types[issue.issuetype.name]
   status = issue.status.name.colorize(colors[issue.status.statusCategory["colorName"]])
   indent = child ? "    " : ""
-  url = child ? "" : "\n#{indent}#{ENV["JIRA_SITE"]}/browse/#{issue.key}"
+  url = "#{ENV["JIRA_SITE"]}/browse/#{issue.key}".underline
+  url_line = child ? "" : "\n#{indent}#{url}"
 
   name = issue.summary
   if name.length > 50
     name = name[0..47] + "..."
   end
 
-  "#{indent}#{key} [#{status} #{type}] #{name}#{url}"
+  "#{indent}#{key} [#{status} #{type}] #{name}#{url_line}"
 end
 
 def fetch_commits(repository, start_tag, end_tag)
