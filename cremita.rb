@@ -115,6 +115,24 @@ def draw_issue_groups(grouped_issues)
   }
 end
 
+def github_issue_ids_in_commits(commits)
+  commits.select{ |commit|
+    /I-(\d+)/.match(commit.commit.message)
+  }.map{ |commit|
+    /I-(\d+)/.match(commit.commit.message)[1]
+  }.flatten.uniq
+end
+
+def draw_github_issue_ids(repository, commits)
+  puts ''
+  puts 'Github issues:'
+
+  github_issue_ids_in_commits(commits).each{ |issue_id|
+    url = "https://github.com/#{repository}/issues/#{issue_id}".underline
+    puts "##{issue_id}: #{url}"
+  }
+end
+
 if ARGV.length != 3
   puts "Usage: cremita.rb <repository> <start> <end>"
   exit 1
@@ -132,3 +150,5 @@ parents = parent_issues(issues)
 
 grouped_issues = group_by_parent(issues + parents)
 draw_issue_groups(grouped_issues)
+
+draw_github_issue_ids(repository, commits)
