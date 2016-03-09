@@ -51,8 +51,8 @@ def draw_issue(issue, child=false)
   types = {
     "Bug" => "🐞 ",
     "Story" => "📘 ",
-    "Technical Task" => "🛠 ",
-    "Technical Story" => "🛠 ",
+    "Technical Task" => "🔨 ",
+    "Technical Story" => "🔨 ",
     "Improvement" => "👻 ",
     "Buglet" => "🐞 ",
   }
