@@ -34,7 +34,7 @@ def issues_by_ids(issue_ids)
 end
 
 def parent_issue_ids(issues)
-  issues.map { |issue| get_parent_id(issue) }
+  issues.map { |issue| get_parent_id(issue) }.uniq
 end
 
 def bugs_in_issues(issues)
