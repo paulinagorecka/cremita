@@ -124,10 +124,14 @@ def github_issue_ids_in_commits(commits)
 end
 
 def draw_github_issue_ids(repository, commits)
-  puts ''
-  puts 'Github issues:'
+  issue_ids = github_issue_ids_in_commits(commits)
 
-  github_issue_ids_in_commits(commits).each{ |issue_id|
+  unless issue_ids.empty?
+    puts ''
+    puts 'Github issues:'
+  end
+
+  issue_ids.each{ |issue_id|
     url = "https://github.com/#{repository}/issues/#{issue_id}".underline
     puts "##{issue_id}: #{url}"
   }
