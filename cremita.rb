@@ -34,12 +34,13 @@ def issues_by_ids(issue_ids)
 end
 
 def parent_issue_ids(issues)
-  issues.select { |issue|
-    get_parent_id(issue) != nil
-  }.map { |issue|
-    issue.parent["key"]
-  }
+  issues.map { |issue| get_parent_id(issue) }
 end
+
+def bugs_in_issues(issues)
+  issues.select { |issue| issue.issuetype.name.eql?('Bug') }  
+end
+
 
 def draw_issue(issue, child=false)
   colors = {
@@ -90,7 +91,7 @@ def group_by_parent(issues)
   issues.uniq { |issue|
     issue.key
   }.group_by { |issue|
-    get_parent_id(issue) || issue.key
+    get_parent_id(issue)
   }
 end
 
@@ -98,7 +99,7 @@ def get_parent_id(issue)
   begin
     issue.parent["key"]
   rescue NoMethodError => e
-    nil
+    issue.key
   end
 end
 
@@ -112,6 +113,15 @@ def draw_issue_groups(grouped_issues)
     issues.select{ |issue| issue.key != parent }.map { |issue|
       puts draw_issue(issue, true)
     }
+  }
+end
+
+def draw_closed_issues(issues)
+  issues.select { |issue| 
+    issue.status.name.eql?('Closed')
+  }.each { |closed_issue|
+    puts ""
+    puts draw_issue(closed_issue)
   }
 end
 
@@ -137,7 +147,7 @@ def draw_github_issue_ids(repository, commits)
   }
 end
 
-if ARGV.length != 3
+if ARGV.length < 3
   puts "Usage: cremita.rb <repository> <start> <end>"
   exit 1
 end
@@ -145,6 +155,7 @@ end
 repository = ARGV[0]
 start_tag = ARGV[1]
 end_tag = ARGV[2]
+options = ARGV[3]
 
 commits = fetch_commits(repository, start_tag, end_tag)
 commits = fetch_commits(repository, end_tag, start_tag) if commits.empty?
@@ -153,6 +164,11 @@ issues = issues_for_commits(commits)
 parents = parent_issues(issues)
 
 grouped_issues = group_by_parent(issues + parents)
-draw_issue_groups(grouped_issues)
 
-draw_github_issue_ids(repository, commits)
+if options.nil?
+  draw_issue_groups(grouped_issues) 
+  draw_github_issue_ids(repository, commits)
+elsif options.include?('-closed')
+  parents = bugs_in_issues(parents) if options.include?('-bugs')
+  draw_closed_issues(parents)
+end
