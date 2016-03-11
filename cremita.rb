@@ -15,32 +15,67 @@ $jira = JIRA::Client.new({
   context_path: ''
 })
 
+def fetch_commits(repository, start_tag, end_tag)
+  commits = commits_between_tags(repository, start_tag, end_tag)
+  puts "INFO: #{commits.length} commits in #{repository} between #{start_tag} and #{end_tag}"
+  commits
+end
+
 def commits_between_tags(repo, start_tag, end_tag)
   $github.compare(repo, start_tag, end_tag).commits
 end
 
-def issue_ids_in_commits(commits)
+def jira_issues_in_commits(commits)
+  jira_issues_by_ids(jira_issue_ids_in_commits(commits))
+end
+
+def jira_parent_issues(jira_issues)
+  jira_issues_by_ids(jira_parent_issues_ids(jira_issues))
+end
+
+def jira_child_issues(jira_issues)
+  jira_issues.select { |jira_issue| get_jira_parent_id(jira_issue) != jira_issue.key }
+end
+
+def jira_issue_ids_in_commits(commits)
   commits.map{ |commit|
     commit.commit.message.scan(/[A-Z]+-\d+/)
   }.flatten.uniq
 end
 
-def issues_by_ids(issue_ids)
-  if issue_ids.empty?
+def jira_issues_by_ids(jira_issue_ids)
+  if jira_issue_ids.empty?
     []
   else
-    $jira.Issue.jql("issuekey in (#{issue_ids.join(', ')})")
+    $jira.Issue.jql("issuekey in (#{jira_issue_ids.join(', ')})")
   end
 end
 
-def parent_issue_ids(issues)
-  issues.map { |issue| get_parent_id(issue) }.uniq
+def jira_parent_issues_ids(jira_issues)
+  jira_issues.map { |jira_issue| get_jira_parent_id(jira_issue) }.uniq
 end
 
-def bugs_in_issues(issues)
-  issues.select { |issue| issue.issuetype.name.eql?('Bug') }  
+def get_jira_parent_id(jira_issue)
+  begin
+    jira_issue.parent["key"]
+  rescue NoMethodError => e
+    jira_issue.key
+  end
 end
 
+def group_by_jira_parent(jira_issues)
+  jira_issues.group_by { |jira_issue|
+    get_jira_parent_id(jira_issue)
+  }
+end
+
+def filter_by_issue_status(jira_issues, issue_status)
+  jira_issues.select { |jira_issue| jira_issue.status.name.eql?(issue_status) }
+end
+
+def filter_by_issue_type(jira_issues, issue_type)
+  jira_issues.select { |jira_issue| jira_issue.issuetype.name.eql?(issue_type) }
+end
 
 def draw_issue(issue, child=false)
   colors = {
@@ -73,37 +108,7 @@ def draw_issue(issue, child=false)
   "#{indent}#{key} [#{status} #{type}] #{name}#{url_line}"
 end
 
-def fetch_commits(repository, start_tag, end_tag)
-  commits = commits_between_tags(repository, start_tag, end_tag)
-  puts "#{commits.length} commits in #{repository} between #{start_tag} and #{end_tag}"
-  commits
-end
-
-def issues_for_commits(commits)
-  issues_by_ids(issue_ids_in_commits(commits))
-end
-
-def parent_issues(issues)
-  issues_by_ids(parent_issue_ids(issues))
-end
-
-def group_by_parent(issues)
-  issues.uniq { |issue|
-    issue.key
-  }.group_by { |issue|
-    get_parent_id(issue)
-  }
-end
-
-def get_parent_id(issue)
-  begin
-    issue.parent["key"]
-  rescue NoMethodError => e
-    issue.key
-  end
-end
-
-def draw_issue_groups(grouped_issues)
+def draw_jira_issue_groups(grouped_issues)
   grouped_issues.each { |parent, issues|
     puts ""
 
@@ -113,15 +118,6 @@ def draw_issue_groups(grouped_issues)
     issues.select{ |issue| issue.key != parent }.map { |issue|
       puts draw_issue(issue, true)
     }
-  }
-end
-
-def draw_closed_issues(issues)
-  issues.select { |issue| 
-    issue.status.name.eql?('Closed')
-  }.each { |closed_issue|
-    puts ""
-    puts draw_issue(closed_issue)
   }
 end
 
@@ -155,20 +151,21 @@ end
 repository = ARGV[0]
 start_tag = ARGV[1]
 end_tag = ARGV[2]
-options = ARGV[3]
+options = ARGV[3] || ''
 
 commits = fetch_commits(repository, start_tag, end_tag)
 commits = fetch_commits(repository, end_tag, start_tag) if commits.empty?
 
-issues = issues_for_commits(commits)
-parents = parent_issues(issues)
+jira_issues = jira_issues_in_commits(commits)
 
-grouped_issues = group_by_parent(issues + parents)
+jira_tasks = jira_parent_issues(jira_issues)
+jira_subtasks = jira_child_issues(jira_issues)
 
-if options.nil?
-  draw_issue_groups(grouped_issues) 
-  draw_github_issue_ids(repository, commits)
-elsif options.include?('-closed')
-  parents = bugs_in_issues(parents) if options.include?('-bugs')
-  draw_closed_issues(parents)
-end
+jira_issues_list = options.include?('-tasks') ? jira_tasks : (jira_tasks + jira_subtasks)
+jira_issues_list = filter_by_issue_status(jira_issues_list, 'Closed') if options.include?('-closed')
+jira_issues_list = filter_by_issue_type(jira_issues_list, 'Bug') if options.include?('-bugs')
+
+jira_grouped_issues = group_by_jira_parent(jira_issues_list)
+
+draw_jira_issue_groups(jira_grouped_issues)
+draw_github_issue_ids(repository, commits)
