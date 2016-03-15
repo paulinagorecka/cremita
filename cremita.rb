@@ -164,6 +164,7 @@ jira_subtasks = jira_child_issues(jira_issues)
 jira_issues_list = options.include?('-tasks') ? jira_tasks : (jira_tasks + jira_subtasks)
 jira_issues_list = filter_by_issue_status(jira_issues_list, 'Closed') if options.include?('-closed')
 jira_issues_list = filter_by_issue_type(jira_issues_list, 'Bug') if options.include?('-bugs')
+jira_issues_list = filter_by_issue_type(jira_issues_list, 'Story') if options.include?('-stories')
 
 jira_grouped_issues = group_by_jira_parent(jira_issues_list)
 
