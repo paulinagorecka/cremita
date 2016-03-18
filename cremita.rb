@@ -2,6 +2,7 @@ require 'octokit'
 require 'jira'
 require 'dotenv'
 require 'colorize'
+require "docopt"
 
 Dotenv.load
 
@@ -69,11 +70,11 @@ def group_by_jira_parent(jira_issues)
   }
 end
 
-def filter_by_issue_status(jira_issues, issue_status)
+def filter_by_task_status(jira_issues, issue_status)
   jira_issues.select { |jira_issue| jira_issue.status.name.eql?(issue_status) }
 end
 
-def filter_by_issue_type(jira_issues, issue_type)
+def filter_by_task_type(jira_issues, issue_type)
   jira_issues.select { |jira_issue| jira_issue.issuetype.name.eql?(issue_type) }
 end
 
@@ -143,15 +144,38 @@ def draw_github_issue_ids(repository, commits)
   }
 end
 
-if ARGV.length < 3
-  puts "Usage: cremita.rb <repository> <start> <end>"
-  exit 1
+
+doc = <<DOCOPT
+Cremita
+
+Usage:
+  cremita.rb <repository> <start> <end> [options]
+
+  -t --tasks          Filter output by Jira tasks, no substaks.
+  --status STATUS     Filter output by Jira task status.
+  --type TYPE         Filter output by Jira task type.
+
+DOCOPT
+
+begin
+  options = Docopt::docopt(doc)
+rescue Docopt::Exit => e
+  puts e.message
 end
 
-repository = ARGV[0]
-start_tag = ARGV[1]
-end_tag = ARGV[2]
-options = ARGV[3] || ''
+exit 1 if options.nil?
+
+repository = options["<repository>"]
+start_tag = options["<start>"]
+end_tag = options["<end>"]
+jira_tasks = options["--tasks"]
+jira_tasks_status = options["--status"]
+jira_task_type = options["--type"]
+
+unless jira_tasks_status.nil? || jira_task_type.nil?
+  jira_tasks = true
+end
+
 
 commits = fetch_commits(repository, start_tag, end_tag)
 commits = fetch_commits(repository, end_tag, start_tag) if commits.empty?
@@ -161,10 +185,10 @@ jira_issues = jira_issues_in_commits(commits)
 jira_tasks = jira_parent_issues(jira_issues)
 jira_subtasks = jira_child_issues(jira_issues)
 
-jira_issues_list = options.include?('-tasks') ? jira_tasks : (jira_tasks + jira_subtasks)
-jira_issues_list = filter_by_issue_status(jira_issues_list, 'Closed') if options.include?('-closed')
-jira_issues_list = filter_by_issue_type(jira_issues_list, 'Bug') if options.include?('-bugs')
-jira_issues_list = filter_by_issue_type(jira_issues_list, 'Story') if options.include?('-stories')
+jira_issues_list = jira_tasks.eql?(true) ? jira_tasks : (jira_tasks + jira_subtasks)
+
+jira_issues_list = filter_by_task_status(jira_issues_list, jira_tasks_status) unless jira_tasks_status.nil?
+jira_issues_list = filter_by_task_type(jira_issues_list, jira_task_type) unless jira_task_type.nil?
 
 jira_grouped_issues = group_by_jira_parent(jira_issues_list)
 
