@@ -168,12 +168,12 @@ exit 1 if options.nil?
 repository = options["<repository>"]
 start_tag = options["<start>"]
 end_tag = options["<end>"]
-jira_tasks = options["--tasks"]
+jira_tasks_only = options["--tasks"]
 jira_tasks_status = options["--status"]
 jira_task_type = options["--type"]
 
 unless jira_tasks_status.nil? || jira_task_type.nil?
-  jira_tasks = true
+  jira_tasks_only = true
 end
 
 
@@ -185,7 +185,7 @@ jira_issues = jira_issues_in_commits(commits)
 jira_tasks = jira_parent_issues(jira_issues)
 jira_subtasks = jira_child_issues(jira_issues)
 
-jira_issues_list = jira_tasks.eql?(true) ? jira_tasks : (jira_tasks + jira_subtasks)
+jira_issues_list = jira_tasks_only.eql?(true) ? jira_tasks : (jira_tasks + jira_subtasks)
 
 jira_issues_list = filter_by_task_status(jira_issues_list, jira_tasks_status) unless jira_tasks_status.nil?
 jira_issues_list = filter_by_task_type(jira_issues_list, jira_task_type) unless jira_task_type.nil?
