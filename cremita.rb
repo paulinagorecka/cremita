@@ -78,7 +78,7 @@ def filter_by_task_type(jira_issues, issue_type)
   jira_issues.select { |jira_issue| jira_issue.issuetype.name.eql?(issue_type) }
 end
 
-def draw_issue(issue, child=false)
+def draw_issue(issue, child=false, jira_issue_priority)
   colors = {
     "yellow" => :yellow,
     "green" => :green,
@@ -97,6 +97,7 @@ def draw_issue(issue, child=false)
   key = issue.key
   type = types[issue.issuetype.name]
   status = issue.status.name.colorize(colors[issue.status.statusCategory["colorName"]])
+  priority = jira_issue_priority ? " - #{issue.priority.name}" : ''
   indent = child ? "    " : ""
   url = "#{ENV["JIRA_SITE"]}/browse/#{issue.key}".underline
   url_line = child ? "" : "\n#{indent}#{url}"
@@ -106,18 +107,18 @@ def draw_issue(issue, child=false)
     name = name[0..47] + "..."
   end
 
-  "#{indent}#{key} [#{status} #{type}] #{name}#{url_line}"
+  "#{indent}#{key} [#{status}#{priority} #{type}] #{name}#{url_line}"
 end
 
-def draw_jira_issue_groups(grouped_issues)
+def draw_jira_issue_groups(grouped_issues, jira_issue_priority)
   grouped_issues.each { |parent, issues|
     puts ""
 
     issue = issues.find{ |issue| issue.key == parent }
-    puts draw_issue(issue)
+    puts draw_issue(issue, jira_issue_priority)
 
     issues.select{ |issue| issue.key != parent }.map { |issue|
-      puts draw_issue(issue, true)
+      puts draw_issue(issue, true, jira_issue_priority)
     }
   }
 end
@@ -152,6 +153,7 @@ Usage:
   cremita.rb <repository> <start> <end> [options]
 
   -t --tasks          Filter output by Jira tasks, no substaks.
+  -p --priority       Show issues priority.
   --status STATUS     Filter output by Jira task status.
   --type TYPE         Filter output by Jira task type.
 
@@ -169,6 +171,7 @@ repository = options["<repository>"]
 start_tag = options["<start>"]
 end_tag = options["<end>"]
 jira_tasks_only = options["--tasks"]
+jira_issue_priority = options["--priority"]
 jira_tasks_status = options["--status"]
 jira_task_type = options["--type"]
 
@@ -192,5 +195,5 @@ jira_issues_list = filter_by_task_type(jira_issues_list, jira_task_type) unless 
 
 jira_grouped_issues = group_by_jira_parent(jira_issues_list)
 
-draw_jira_issue_groups(jira_grouped_issues)
+draw_jira_issue_groups(jira_grouped_issues, jira_issue_priority)
 draw_github_issue_ids(repository, commits)
