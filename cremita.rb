@@ -6,9 +6,8 @@ require "docopt"
 
 Dotenv.load
 
-$github = Octokit::Client.new(access_token: ENV["GITHUB_ACCESS_TOKEN"])
+@github = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
 
-$jira = JIRA::Client.new({
   username: ENV["JIRA_USERNAME"],
   password: ENV["JIRA_PASSWORD"],
   site: ENV["JIRA_SITE"],
@@ -23,7 +22,7 @@ def fetch_commits(repository, start_tag, end_tag)
 end
 
 def commits_between_tags(repo, start_tag, end_tag)
-  $github.compare(repo, start_tag, end_tag).commits
+  @github.compare(repo, start_tag, end_tag).commits
 end
 
 def jira_issues_in_commits(commits)
