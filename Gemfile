@@ -1,7 +1,8 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-gem "octokit"
-gem "jira-ruby"
-gem "dotenv"
-gem "colorize"
+gem 'octokit'
+gem 'jira-ruby'
+gem 'dotenv'
+gem 'colorize'
 gem 'docopt'
+gem 'rubocop'
