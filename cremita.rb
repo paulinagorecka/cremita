@@ -138,6 +138,7 @@ doc = <<DOCOPT
 Cremita
 
 Usage:
+  Oops, some values are missing! Please remember that a correct format is:
   cremita.rb <repository> <start> <end> [options]
 
   -t --tasks          Filter output by Jira tasks, no substaks.
