@@ -22,6 +22,11 @@ end
 
 def commits_between_tags(repo, start_tag, end_tag)
   @github.compare(repo, start_tag, end_tag).commits
+def commits_between_tags(repository, start_tag, end_tag)
+  @github.compare(repository, start_tag, end_tag).commits
+rescue Octokit::InvalidRepository, Octokit::Error => e
+  puts "ERROR: #{e.message}"
+  exit 1
 end
 
 def jira_issues_in_commits(commits)
