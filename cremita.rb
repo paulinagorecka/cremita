@@ -1,3 +1,7 @@
+require 'rubygems'
+require 'bundler'
+Bundler.setup(:default)
+
 require 'octokit'
 require 'jira'
 require 'dotenv'
