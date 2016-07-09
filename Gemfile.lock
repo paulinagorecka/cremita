@@ -51,6 +51,7 @@ DEPENDENCIES
   docopt
   dotenv
   jira-ruby
+  minitest
   octokit
   rubocop
 
