@@ -10,4 +10,4 @@ require 'docopt'
 
 require_relative 'lib/cremita'
 
-Cremita.new.run
+Cremita.new(argv: ARGV).run

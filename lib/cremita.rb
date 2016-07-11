@@ -1,5 +1,6 @@
 class Cremita
-  def initialize
+  def initialize(args)
+    @args = args
     Dotenv.load
 
     @github = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
@@ -149,7 +150,7 @@ Usage:
 DOCOPT
 
     begin
-      options = Docopt.docopt(doc)
+      options = Docopt.docopt(doc, @args)
     rescue Docopt::Exit => e
       puts e.message
     end

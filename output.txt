@@ -1,0 +1,44 @@
+INFO: 87 commits in Typeform/Typeform between preprod-2025 and testing-2030
+
+TF-7780 [[0;32;49mClosed[0m 🐞 ] Duplication of a typeform created by a core user...
+[4;39;49mhttps://typeform.atlassian.net/browse/TF-7780[0m
+
+TF-7765 [[0;33;49mResolved[0m 🐞 ] Applying customer saved coupon forrst and then r...
+[4;39;49mhttps://typeform.atlassian.net/browse/TF-7765[0m
+
+TF-6997 [[0;32;49mClosed[0m 🐞 ] User reporting issues with file upload
+[4;39;49mhttps://typeform.atlassian.net/browse/TF-6997[0m
+
+MK-1303 [[0;32;49mClosed[0m 📘 ] AB test | Show save account widget immediately t...
+[4;39;49mhttps://typeform.atlassian.net/browse/MK-1303[0m
+
+DT-174 [[0;32;49mClosed[0m 📘 ] As a CS Agent I want to see Zendesk profiles for...
+[4;39;49mhttps://typeform.atlassian.net/browse/DT-174[0m
+
+DT-172 [[0;32;49mClosed[0m 📘 ] As a CS agent I want the Zendesk profiles to be ...
+[4;39;49mhttps://typeform.atlassian.net/browse/DT-172[0m
+
+DT-171 [[0;32;49mClosed[0m 📘 ] As a CS agent I want a Zendesk profile for a new...
+[4;39;49mhttps://typeform.atlassian.net/browse/DT-171[0m
+
+DT-123 [[0;34;49mReview[0m ] As a CS Agent I want better Zendesk integration
+[4;39;49mhttps://typeform.atlassian.net/browse/DT-123[0m
+
+CR1-139 [[0;34;49mTo Do[0m 📘 ] As a user I want to see the design without minor...
+[4;39;49mhttps://typeform.atlassian.net/browse/CR1-139[0m
+    CR1-141 [[0;32;49mDone[0m ] Do it
+
+CR1-74 [[0;32;49mDone[0m 📘 ] As a user I do not want to see the 20px border
+[4;39;49mhttps://typeform.atlassian.net/browse/CR1-74[0m
+    CR1-121 [[0;32;49mDone[0m ] workspaces background bug
+
+CN-53 [[0;32;49mDone[0m ] Remove unused `Notify With Mercury` feature flag
+[4;39;49mhttps://typeform.atlassian.net/browse/CN-53[0m
+
+CN-19 [[0;33;49mIn Development[0m 📘 ] Add questions to webhooks payload
+[4;39;49mhttps://typeform.atlassian.net/browse/CN-19[0m
+    CN-75 [[0;33;49mReady for QA[0m ] Update Form Description that is included as part...
+
+Github issues:
+#2476: [4;39;49mhttps://github.com/Typeform/Typeform/issues/2476[0m
+#1425: [4;39;49mhttps://github.com/Typeform/Typeform/issues/1425[0m
